@@ -18,7 +18,7 @@ I created the drawing application using the Tkinter library from python.  Pretty
 # creating test data, processing images, the juicy part
 I used Pillow.  This is where I faced the greatest hurdle.  There were my obstacles:
 
-<b> CAPTURING THE DRAWING </b
+<b> CAPTURING THE DRAWING </b>
 This was an absolute pain that could've been avoided if I actually knew what I was doing with Tkinter inside and out.  When designing the drawing app, my widgets appeared in the right place, but I was definitely inputting the wrong pixel coordinates when using Pillow's Image.grab() method to screenshot a 500x500 pixel box of the canvas.  Knowing the nature of neural networks, I needed my screenshot to be pixel-perfect since NNs are very particular about the dimensions of the input data they receive.  This was especially so since I trained my NN on different data than what I was feeding.  Eventually, some toying around resulted in what I wanted (a miracle!).
 
 <b> RESIZING THE IMAGE </b>
@@ -42,5 +42,6 @@ I learned a ton about manipulating image data, and the limitations of my neural 
 Perhaps I'll use actual data from my drawing app (instead of MNIST) to train a NN and see how things go.  
 Also, maybe centering the images around the center of mass of the pixels would've made my data more resemblant of MNIST data (they mention using this method to create their dataset).  However, after the miracle of figuring out how to screenshot my drawing canvas, I didn't want to touch image-grabbing again and ruin it all.
 
-Thanks for reading if you went through all of this!
+Thanks for reading if you went through all of this! 
+
 Nicholas Wang
