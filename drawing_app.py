@@ -1,6 +1,7 @@
 from tkinter import *
 from PIL import ImageGrab, Image
-import numpy
+import numpy as np
+import pickle
 
 class DrawingApp:
     def __init__(self):
@@ -8,6 +9,7 @@ class DrawingApp:
         self.root.title("MNIST+")
         self.root.resizable(0,0)
         self.root.geometry("500x700")
+        self.root.grid_columnconfigure((0,1,2), weight = 1)
         self.originx, self.originy = None, None
         self.root.bind("<B1-Motion>", self.paint)
         self.root.bind("<ButtonRelease-1>", self.reset)
@@ -43,42 +45,52 @@ class DrawingApp:
         self.clear.grid(row = 2, column = 1)
 
     def make_canvas(self):
-        self.canvas = Canvas(self.root, bg="white", width=500, height=500)
-        self.canvas.grid(pady = 20,row = 3)
+        self.canvas = Canvas(self.root, bg="black", width=500, height=500)
+        self.canvas.grid(pady = 20,row = 3, sticky = "ew")
         self.canvas.update()
 
     #paint on the canvas, binded to b1-motion
     def paint(self, event):
         if self.originx and self.originy:
-            self.canvas.create_line(self.originx, self.originy, event.x, event.y, width=5, fill="black")
+            self.canvas.create_line(self.originx, self.originy, event.x, event.y, width=10, fill="white")
         self.originx, self.originy = event.x, event.y
 
     def reset(self, event):
         self.originx, self.originy = None, None
         
     def callback(self):
-        self.result = 5
-        left = self.canvas.winfo_rootx() + self.canvas.winfo_x()
-        upper = self.canvas.winfo_rooty()
-        right = left + 500
-        lower = upper + 500
-        print("left", left)
-        print("upper", upper)
-        print("right", right)
-        print("lower", lower)
-        print("canvas width:", self.canvas.winfo_width())
-        print("canvas height:", self.canvas.winfo_height())
-        image = ImageGrab.grab(bbox = (left, upper, right, lower))
-        self.guess.config(text="Hmmm... it's " + str(self.result) + "!")
-    
-        #try screenshotting with pilow first, and then having a "ghost" drawing in the background if that doesnt work.
-        #rootx/y means dist from upper left corner
-        #canvx/y means dist from the upper left window corner
-        #implement the AI here, make the guess, feed it back as a string(self.result) to display
+        left = self.canvas.winfo_rootx() + self.canvas.winfo_x()+5
+        upper = self.canvas.winfo_rooty() + 5
+        right = left + 490
+        lower = upper + 490
+        self.image = ImageGrab.grab(bbox = (left, upper, right, lower))
+        #resize image and convert to np.array (28,28) and then binarize the pixel values
+        self.resize_image(self.image)
+        self.neural_net()
+        self.guess.config(text="Hmmm... it's " + str(self.answer) + "!")
 
     def clear_canvas(self):
         self.canvas.delete("all")
         self.guess.config(text="Hmmm... ")
-
+    
+    def resize_image(self, image):
+        self.image = self.image.resize((28,28),Image.ANTIALIAS)
+        self.image = self.image.convert("L")
+        self.image_as_array = np.array(self.image)
+        for i in range(len(self.image_as_array)):
+            for j in range(len(self.image_as_array[0])):
+                if self.image_as_array[i][j]>10:
+                    self.image_as_array[i][j] = 255
+                else: 
+                    self.image_as_array[i][j]=0
+        self.image = Image.fromarray(self.image_as_array)
+        self.image.save("test.png", quality = 95)
+        self.image = Image.open("test.png")
+    def neural_net(self):
+        pickled = open("best_model.pickle", "rb")
+        model = pickle.load(pickled)
+        self.image_as_array.resize(1,28,28)
+        predictions = model.predict(self.image_as_array)
+        self.answer = np.argmax(predictions)
 if __name__=="__main__":
     DrawingApp()
