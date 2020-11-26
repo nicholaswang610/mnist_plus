@@ -31,14 +31,15 @@ I converted the 500x500 screenshot into a numpy array, downsized to 28x28.  The 
 First, I found out I had to greyscale the image data since by default Pillow captures them in RGB.  Then, I just iterated throught the numpy array and changed the values of what was drawn to 255 (white) and everything else 0 (black background).  I found that the right threshold was 10 - anything above was cranked up, anything below was just black background.
 
 <b> PLUG INTO THE NN AND PRAY </b>
+
 Fingers crossed.
 
 
 
-# it worked... kinda
+# It worked... kinda
 The program could guess the numbers 2, 3, and 4 very well.  However, not once did it recognize a 1, 7, or 9 and had confusion between 5, 6, and 8.  It loved to guess the number 6.  My suspicion is that this happened due to the miniscule pixel differences between my numbers and MNIST data.  5, 6, and 8 all have a similar "shape" to them.  Likely, the NN interpreted a bunch of pixels going through the middle as 6.  2, 3, and 4 however are very distinguishable.  
 
-# lessons learned
+# Lessons learned
 
 I learned a ton about manipulating image data, and the limitations of my neural network!  I recognized clear patterns in what my NN was doing and the numbers it was guessing.  Also, I did plan my method of attack a bit, but probably could've used more pre-planning as to what I needed to do.
 
